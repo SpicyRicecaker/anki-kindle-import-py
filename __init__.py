@@ -10,8 +10,8 @@ from aqt.qt import *
 # We're going to add a menu item below. First we want to create a function to
 # be called when the menu item is activated.
 def importCards() -> None:
-    json_path: str = "/Users/oliver/git/anki-kindle-import/out.json"
-    f: str = open(json_path)
+    json_path: str = "/Users/oliver/git/anki-kindle-import-rs/out.json"
+    f: str = open(json_path, 'r+', encoding='utf-8')
     arr = json.load(f, object_pairs_hook=OrderedDict)
     # json.dumps(arr);
     print('hello')
@@ -52,8 +52,7 @@ def importCards() -> None:
             # Add the note
             mw.col.addNote(note)
             mw.col.update_note(note)
-
-        showInfo("successfully added notes")
+    showInfo("successfully added notes")
 
 # create a new menu item, "test"
 action = QAction("Import cards from kindle clippings (exported by anki-kindle-import-rs, in a very specific folder)", mw)
