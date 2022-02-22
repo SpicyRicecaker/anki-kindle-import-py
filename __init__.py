@@ -20,29 +20,43 @@ def importCards() -> None:
         terms = arr[i+1]["Note"]["terms"]
         # for each term
         for term in terms:
-            print(term)
+            # code with inspiration from https://www.juliensobczak.com/write/2016/12/26/anki-scripting.html
 
+            # set the note type for the card we're about to create to basic
+            modelBasic = mw.col.models.by_name('Basic')
 
+            # focus our misc. deck
+            deck = mw.col.decks.by_name("misc")
+            if (deck):
+                mw.col.decks.select(deck['id'])
 
+            # set our current model to basic. But this doesn't make sense,
+            # shouldn't it e mw.col.model instead?
+            mw.col.decks.current()['mid'] = modelBasic['id']
 
-    # # get the number of cards in the current collection, which is stored in
-    # # the main window
-    # totalCards = mw.col.cardCount()
-    # tags = mw.col.tags.all();
+            # create a note with the focused model
+            note = mw.col.newNote()
 
-    # list = {}
-    # # dict that we can sort
-    # for tag in tags:
-    #     numOfCardWithTag = mw.col.find_cards("tag:" + tag).__len__()
-    #     list[tag] = numOfCardWithTag
-    # out = "name:percentage of total (cards in total)\n"
-    # # sort the dict
-    # for x,y in sorted(list.items(), key=lambda x: x[1], reverse=True):
-    #     out += "{}:{:.2%} ({})\n".format(x, y / totalCards, y)
-    # showInfo(out)
+            # set the front and back accordingly 
+            note["Front"] = term["definition"];
+            note["Back"] = term["term"] + '<br><br>' + sentence;
+
+            # add tags to card 
+            tags = "book"
+            note.set_tags_from_str(tags)
+            # note.tags = mw.col.tags.split(tags)
+            # m = note.note_type()
+            # m['tags'] = note.tags
+            # mw.col.models.save(m)
+
+            # Add the note
+            mw.col.addNote(note)
+            mw.col.update_note(note)
+
+        showInfo("successfully added notes")
 
 # create a new menu item, "test"
-action = QAction("Import cards from kindle clippings (exported by anki-kindle-import-rs)", mw)
+action = QAction("Import cards from kindle clippings (exported by anki-kindle-import-rs, in a very specific folder)", mw)
 # set it to call testFunction when it's clicked
 qconnect(action.triggered, importCards)
 # and add it to the tools menu
