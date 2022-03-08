@@ -7,6 +7,9 @@ from aqt.utils import showInfo, qconnect
 # import all of the Qt GUI library
 from aqt.qt import *
 
+# types
+from anki.decks import DeckDict
+
 # We're going to add a menu item below. First we want to create a function to
 # be called when the menu item is activated.
 def importCards() -> None:
@@ -14,28 +17,43 @@ def importCards() -> None:
     f: str = open(json_path, 'r+', encoding='utf-8')
     arr = json.load(f, object_pairs_hook=OrderedDict)
     # json.dumps(arr);
-    print('hello')
+
+    # code with inspiration from https://www.juliensobczak.com/write/2016/12/26/anki-scripting.html
+
+    # set the note type for the cards we're about to create to basic
+    # for some reason the deck_id of which to put the card is tied to the model, so
+    modelBasic = mw.col.models.by_name('Basic')
+
+    # focus our misc. deck
+    deck: DeckDict = mw.col.decks.by_name("Misc")
+    # deck_2: DeckDict = mw.col.decks.by_name("FUNK")
+    # deck_3: DeckDict = mw.col.decks.by_name("DEFAULT")
+    # print(deck, deck_2, deck_3)
+    # if (deck):
+    #     print("we want to get", deck.get("id"))
+    #     mw.col.decks.set_current(deck.get("id"))
+    #     mw.col.decks.select(deck.get("id"))
+    #     print("now we selected", mw.col.decks.get_current_id())
+    #     print("selected deck misc")
+    # else:
+    #     print("could not select deck misc, adding cards to currently selected deck instead")
+
+    # set our current model to basic. But this doesn't make sense,
+    # shouldn't it e mw.col.model instead?
+    # print("deck id model id before setting it to basic")
+    # print(mw.col.models.current)
+    mw.col.models.set_current(modelBasic)
+    # print("deck id model id after setting it to basic")
+    # print(mw.col.models.current)
     for i in range(0, len(arr), 2):
         sentence = arr[i]["Highlight"]["sentence"]
         terms = arr[i+1]["Note"]["terms"]
+
         # for each term
         for term in terms:
-            # code with inspiration from https://www.juliensobczak.com/write/2016/12/26/anki-scripting.html
-
-            # set the note type for the card we're about to create to basic
-            modelBasic = mw.col.models.by_name('Basic')
-
-            # focus our misc. deck
-            deck = mw.col.decks.by_name("misc")
-            if (deck):
-                mw.col.decks.select(deck['id'])
-
-            # set our current model to basic. But this doesn't make sense,
-            # shouldn't it e mw.col.model instead?
-            mw.col.decks.current()['mid'] = modelBasic['id']
-
             # create a note with the focused model
             note = mw.col.newNote()
+            note.note_type()["did"] = deck["id"]
 
             # set the front and back accordingly 
             note["Front"] = term["definition"];
