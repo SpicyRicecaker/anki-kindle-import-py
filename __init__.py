@@ -12,7 +12,7 @@ from anki.decks import DeckDict
 
 # We're going to add a menu item below. First we want to create a function to
 # be called when the menu item is activated.
-def importCards() -> None:
+def import_cards() -> None:
     json_path: str = "/Users/oliver/git/anki-kindle-import-rs/out.json"
     f: str = open(json_path, 'r+', encoding='utf-8')
     arr = json.load(f, object_pairs_hook=OrderedDict)
@@ -28,7 +28,7 @@ def importCards() -> None:
     deck: DeckDict = mw.col.decks.by_name("Misc")
 
     # set our current card model to basic
-    mw.col.models.set_current(modelBasic)
+    # mw.col.models.set_current(modelBasic)
 
     for i in range(0, len(arr), 2):
         sentence = arr[i]["Highlight"]["sentence"]
@@ -37,10 +37,9 @@ def importCards() -> None:
         # for each term
         for term in terms:
             # create a note with the focused model
-            note = mw.col.newNote()
+            note = mw.col.new_note(modelBasic)
             # for some reason the deck a card is stored on is the same as its note type
             # so we set it to focus the `Misc` deck we got the id of by name earlier
-            note.note_type()["did"] = deck["id"]
 
             # set the front and back accordingly 
             note["Front"] = term["definition"];
@@ -57,13 +56,13 @@ def importCards() -> None:
             # mw.col.models.save(m)
 
             # Add the note
-            mw.col.addNote(note)
+            mw.col.add_note(note, deck["id"])
             mw.col.update_note(note)
     showInfo("successfully added notes")
 
 # create a new menu item, "test"
 action = QAction("Import cards from kindle clippings (exported by anki-kindle-import-rs, in a very specific folder)", mw)
 # set it to call testFunction when it's clicked
-qconnect(action.triggered, importCards)
+qconnect(action.triggered, import_cards)
 # and add it to the tools menu
 mw.form.menuTools.addAction(action)
