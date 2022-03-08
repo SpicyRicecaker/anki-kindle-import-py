@@ -24,27 +24,12 @@ def importCards() -> None:
     # for some reason the deck_id of which to put the card is tied to the model, so
     modelBasic = mw.col.models.by_name('Basic')
 
-    # focus our misc. deck
+    # we're adding cards to the `Misc` deck
     deck: DeckDict = mw.col.decks.by_name("Misc")
-    # deck_2: DeckDict = mw.col.decks.by_name("FUNK")
-    # deck_3: DeckDict = mw.col.decks.by_name("DEFAULT")
-    # print(deck, deck_2, deck_3)
-    # if (deck):
-    #     print("we want to get", deck.get("id"))
-    #     mw.col.decks.set_current(deck.get("id"))
-    #     mw.col.decks.select(deck.get("id"))
-    #     print("now we selected", mw.col.decks.get_current_id())
-    #     print("selected deck misc")
-    # else:
-    #     print("could not select deck misc, adding cards to currently selected deck instead")
 
-    # set our current model to basic. But this doesn't make sense,
-    # shouldn't it e mw.col.model instead?
-    # print("deck id model id before setting it to basic")
-    # print(mw.col.models.current)
+    # set our current card model to basic
     mw.col.models.set_current(modelBasic)
-    # print("deck id model id after setting it to basic")
-    # print(mw.col.models.current)
+
     for i in range(0, len(arr), 2):
         sentence = arr[i]["Highlight"]["sentence"]
         terms = arr[i+1]["Note"]["terms"]
@@ -53,6 +38,8 @@ def importCards() -> None:
         for term in terms:
             # create a note with the focused model
             note = mw.col.newNote()
+            # for some reason the deck a card is stored on is the same as its note type
+            # so we set it to focus the `Misc` deck we got the id of by name earlier
             note.note_type()["did"] = deck["id"]
 
             # set the front and back accordingly 
@@ -62,6 +49,8 @@ def importCards() -> None:
             # add tags to card 
             tags = "book"
             note.set_tags_from_str(tags)
+
+            # may need to preserve pre-existing card tags in the future (but probably not)
             # note.tags = mw.col.tags.split(tags)
             # m = note.note_type()
             # m['tags'] = note.tags
