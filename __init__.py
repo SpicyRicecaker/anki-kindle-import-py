@@ -24,6 +24,7 @@ def import_cards() -> None:
     # set the note type for the cards we're about to create to basic
     # for some reason the deck_id of which to put the card is tied to the model, so
     modelBasic = mw.col.models.by_name('Basic')
+    modelCloze = mw.col.models.by_name('Cloze')
 
     # we're adding cards to the `Misc` deck
     deck: DeckDict = mw.col.decks.by_name("Misc")
@@ -34,20 +35,16 @@ def import_cards() -> None:
     # set our current card model to basic
     # mw.col.models.set_current(modelBasic)
 
-    for i in range(0, len(arr), 2):
-        sentence = arr[i]["Highlight"]["sentence"]
-        terms = arr[i+1]["Note"]["terms"]
-
-        # for each term
-        for term in terms:
+    for card in arr:
+        for cardType, content in card.items():
             # create a note with the focused model
-            note = mw.col.new_note(modelBasic)
+            note = mw.col.new_note(modelBasic if cardType == 'Basic' else modelCloze)
             # for some reason the deck a card is stored on is the same as its note type
             # so we set it to focus the `Misc` deck we got the id of by name earlier
 
             # set the front and back accordingly 
-            note["Front"] = term["definition"];
-            note["Back"] = term["term"] + '<br><br>' + sentence;
+            note["Front" if cardType == 'Basic' else 'Text'] = content["front"];
+            note["Back" if cardType == 'Basic' else 'Back Extra'] = content["back"];
 
             # add tags to card 
             tags = "book"
@@ -65,7 +62,7 @@ def import_cards() -> None:
     showInfo("successfully added notes")
 
 # create a new menu item, "test"
-action = QAction("Import cards from kindle clippings (exported by anki-kindle-import-rs, in a very specific folder)", mw)
+action = QAction("Import cards from kindle clippings", mw)
 # set it to call testFunction when it's clicked
 qconnect(action.triggered, import_cards)
 # and add it to the tools menu
