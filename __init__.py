@@ -14,9 +14,18 @@ from anki.decks import DeckDict
 # We're going to add a menu item below. First we want to create a function to
 # be called when the menu item is activated.
 def import_cards() -> None:
-    config_path = os.path.join(Path.home(), "git", "anki-kindle-import-rs", "output.json")
+    config_path = os.path.join(Path.home(), "git", "anki-kindle-import-rs", "out", "output.json")
     f: str = open(config_path, 'r+', encoding='utf-8')
-    arr = json.load(f, object_pairs_hook=OrderedDict)
+    output = json.load(f, object_pairs_hook=OrderedDict)
+
+    print(json.dumps(output));
+
+    arr = output["cards"]
+
+    # to store inclusive date for anki-kindle-import-rs
+    endDate = output["end_date"]
+    date_path = os.path.join(Path.home(), "git", "anki-kindle-import-rs", "out", "last-date.json")
+
     # print("---------------------------------->", config_path, json.dumps(arr));
 
     # code with inspiration from https://www.juliensobczak.com/write/2016/12/26/anki-scripting.html
@@ -34,6 +43,8 @@ def import_cards() -> None:
 
     # set our current card model to basic
     # mw.col.models.set_current(modelBasic)
+
+    count = 0;
 
     for card in arr:
         for cardType, content in card.items():
@@ -59,7 +70,12 @@ def import_cards() -> None:
             # Add the note
             mw.col.add_note(note, deck["id"])
             mw.col.update_note(note)
-    showInfo("successfully added notes")
+            count += 1
+    # upon success, also write to database
+    f2 = open(date_path, 'w', encoding='utf-8')
+    json.dump({'date': endDate}, f2, indent=2)
+
+    showInfo(f"successfully added {count} note{'' if count == 1 else 's'}")
 
 # create a new menu item, "test"
 action = QAction("Import cards from kindle clippings", mw)
