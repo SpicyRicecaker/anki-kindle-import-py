@@ -18,7 +18,7 @@ def import_cards() -> None:
     f: str = open(config_path, 'r+', encoding='utf-8')
     output = json.load(f, object_pairs_hook=OrderedDict)
 
-    print(json.dumps(output));
+    print(json.dumps(output))
 
     arr = output["cards"]
 
@@ -26,7 +26,7 @@ def import_cards() -> None:
     endDate = output["end_date"]
     date_path = os.path.join(Path.home(), "git", "anki-kindle-import-rs", "out", "last-date.json")
 
-    # print("---------------------------------->", config_path, json.dumps(arr));
+    # print("---------------------------------->", config_path, json.dumps(arr))
 
     # code with inspiration from https://www.juliensobczak.com/write/2016/12/26/anki-scripting.html
 
@@ -44,7 +44,7 @@ def import_cards() -> None:
     # set our current card model to basic
     # mw.col.models.set_current(modelBasic)
 
-    count = 0;
+    count = 0
 
     for card in arr:
         for cardType, content in card.items():
@@ -54,8 +54,12 @@ def import_cards() -> None:
             # so we set it to focus the `Misc` deck we got the id of by name earlier
 
             # set the front and back accordingly 
-            note["Front" if cardType == 'Basic' else 'Text'] = content["front"];
-            note["Back" if cardType == 'Basic' else 'Back Extra'] = content["back"];
+            if cardType == 'Basic':
+                note['Front'] = content["front"]
+                note['Back'] = content["back"]
+            else:
+                note['Text'] = content["text"]
+                note['Back Extra'] = content["back_extra"]
 
             # add tags to card 
             tags = "book"
